@@ -7,16 +7,18 @@ module.exports = function(grunt) {
         var uglify = require('../lib/uglify').init(grunt);
 
         var ph_libutil = require("phantomizer-libutil");
-        var meta = ph_libutil.meta
-        var wd = process.cwd()
-        var meta_manager = new meta( wd )
+        var meta_factory = ph_libutil.meta;
+        var wd = process.cwd();
 
-        var options = this.options()
+        var options = this.options();
+        var meta_dir = options.meta_dir;
 
-        if( meta_manager.is_fresh(options.meta) == false ){
+        var meta_manager = new meta_factory( wd, meta_dir );
+
+        if( meta_manager.is_fresh(options.meta_file) == false ){
             var done = this.async();
-            var current_grunt_task = this.nameArgs
-            var current_grunt_opt = this.options()
+            var current_grunt_task = this.nameArgs;
+            var current_grunt_opt = this.options();
             var deps = []
 
             // add grunt file to dependencies so that file are rebuild when this file changes
@@ -126,7 +128,7 @@ module.exports = function(grunt) {
             var entry = meta_manager.create(deps)
             entry.require_task(current_grunt_task, current_grunt_opt)
 
-            entry.save(options.meta, function(err){
+            entry.save(options.meta_file, function(err){
                 if (err) done(false);
                 else{
                     done();
