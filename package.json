@@ -1,0 +1,23 @@
+{
+    "name": "phantomizer-uglifyjs",
+    "version": "0.1.0",
+    "private": true,
+    "description": "UglifyJS optimization support for phantomizer",
+    "keywords": "",
+    "bugs": {
+        "url" : "http://github.com/maboiteaspam/phantomizer-uglifyjs/issues",
+        "email" : "none@host.com"
+    },
+    "license" : "mit",
+    "repository" :{
+        "type" : "git",
+        "url" : "http://github.com/maboiteaspam/phantomizer-uglifyjs.git"
+    },
+    "dependencies": {
+        "grunt": "0.4.x",
+        "uglify-js": "2.3.x",
+        "phantomizer-libutil": "maboiteaspam/phantomizer-libutil"
+    },
+    "devDependencies": {
+    }
+}
