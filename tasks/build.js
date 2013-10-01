@@ -12,6 +12,7 @@ module.exports = function(grunt) {
 
         var options = this.options();
         var meta_dir = options.meta_dir;
+        var user_config = grunt.config();
 
         var meta_manager = new meta_factory( wd, meta_dir );
 
@@ -29,6 +30,9 @@ module.exports = function(grunt) {
             }
             if ( grunt.file.exists(process.cwd()+"/Gruntfile.js")) {
                 deps.push(process.cwd()+"/Gruntfile.js")
+            }
+            if ( grunt.file.exists(user_config.project_dir+"/../config.json")) {
+                deps.push( user_config.project_dir+"/../config.json")
             }
             deps.push(__filename)
 
