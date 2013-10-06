@@ -119,7 +119,7 @@ module.exports = function(grunt) {
                 }
 
                 // Print a success message.
-                grunt.log.writeln('File "' + f.dest + '" created.');
+                grunt.log.ok('File "' + f.dest + '" created.');
 
                 // ...and report some size information.
                 if (options.report) {
@@ -140,7 +140,7 @@ module.exports = function(grunt) {
             })
 
         }else{
-            console.log("your build is fresh !")
+            grunt.log.ok('Your build is fresh !\n\t'+options.meta_file);
         }
 
 
