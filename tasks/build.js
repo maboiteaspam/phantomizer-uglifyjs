@@ -25,7 +25,7 @@ module.exports = function(grunt) {
             // add grunt file to dependencies so that file are rebuild when this file changes
             for( var ooo in this.files ){
                 for( var ttt in this.files[ooo].src ){
-                    deps.push(this.files[ooo].src[ttt])
+                    deps.push(this.files[ooo].src[ttt]);
                 }
             }
             if ( grunt.file.exists(process.cwd()+"/Gruntfile.js")) {
