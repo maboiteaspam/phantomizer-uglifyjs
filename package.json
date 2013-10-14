@@ -1,6 +1,6 @@
 {
     "name": "phantomizer-uglifyjs",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "private": true,
     "description": "UglifyJS optimization support for phantomizer",
     "keywords": "",
