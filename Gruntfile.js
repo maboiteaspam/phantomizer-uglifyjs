@@ -23,7 +23,7 @@ module.exports = function(grunt) {
                     '<%= out_dir %>/jquery.ios-slider-0.9.1-min.js': [in_dir+'/jquery.ios-slider-0.9.1.js']
                 },
                 options:{
-                    "meta": "<%= meta_dir %>/jquery.ios-slider-0.9.1.js.meta"
+                    "meta": "<%= meta_dir %>/jquery.ios-slider-0.9.1.js"
                 }
             }
         }
