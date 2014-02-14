@@ -1,14 +1,14 @@
 
 module.exports = function(grunt) {
 
-    grunt.initConfig({
-        pkg: grunt.file.readJSON('package.json')
-    });
+  grunt.initConfig({
+    pkg: grunt.file.readJSON('package.json')
+  });
 
-    grunt.loadNpmTasks('phantomizer-uglifyjs');
+  grunt.loadNpmTasks('phantomizer-uglifyjs');
 
-    grunt.registerTask('default',
-        [
-            'phantomizer-uglifyjs:test'
-        ]);
+  grunt.registerTask('default',
+    [
+      'phantomizer-uglifyjs:test'
+    ]);
 };
