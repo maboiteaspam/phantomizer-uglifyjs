@@ -5,19 +5,17 @@ module.exports = function(grunt) {
     grunt.registerMultiTask("phantomizer-uglifyjs", "", function () {
 
         var ph_libutil = require("phantomizer-libutil");
-        var meta_factory = ph_libutil.meta;
-        var wd = process.cwd();
 
         var options = this.options({
-                meta_dir:'',
                 meta_file:''
         });
-        var meta_dir = options.meta_dir;
         var meta_file = options.meta_file;
         var user_config = grunt.config();
 
 
-        var meta_manager = new meta_factory( wd, meta_dir );
+
+      var phantomizer = ph_libutil.get("main");
+      var meta_manager = phantomizer.get_meta_manager();
 
         if( meta_manager.is_fresh(meta_file) == false ){
             var done = this.async();
@@ -40,26 +38,22 @@ module.exports = function(grunt) {
                 apply_uglify(f,uglify_options);
             });
 
+          // create a cache entry, so that later we can regen or check freshness
+          var entry = meta_manager.create(deps)
             var deps = [];
             // add grunt file to dependencies so that file are rebuild when this file changes
             for( var ooo in this.files ){
                 for( var ttt in this.files[ooo].src ){
-                    deps.push(this.files[ooo].src[ttt]);
+                  entry.append_dependency(this.files[ooo].src[ttt])
                 }
             }
-            if ( grunt.file.exists(process.cwd()+"/Gruntfile.js")) {
-                deps.push(process.cwd()+"/Gruntfile.js")
-            }
-            if ( grunt.file.exists(user_config.project_dir+"/../config.json")) {
-                deps.push( user_config.project_dir+"/../config.json")
-            }
-            deps.push(__filename)
+              entry.append_dependency(process.cwd()+"/Gruntfile.js")
+              entry.append_dependency( user_config.project_dir+"/../config.json")
+          entry.append_dependency(__filename)
 
 
             var current_grunt_task = this.nameArgs;
             var current_grunt_opt = this.options();
-            // create a cache entry, so that later we can regen or check freshness
-            var entry = meta_manager.create(deps)
             entry.require_task(current_grunt_task, current_grunt_opt)
 
             entry.save(options.meta_file, function(err){
