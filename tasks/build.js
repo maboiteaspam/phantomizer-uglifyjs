@@ -14,7 +14,8 @@ module.exports = function(grunt) {
 
 
 
-    var phantomizer = ph_libutil.get("main");
+    var Phantomizer = ph_libutil.Phantomizer;
+    var phantomizer = new Phantomizer(process.cwd(),grunt);
     var meta_manager = phantomizer.get_meta_manager();
 
     if( meta_manager.is_fresh(meta_file) == false ){
