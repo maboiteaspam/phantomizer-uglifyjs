@@ -10,7 +10,6 @@ module.exports = function(grunt) {
       meta_file:''
     });
     var meta_file = options.meta_file;
-    var user_config = grunt.config();
 
 
 
@@ -40,16 +39,13 @@ module.exports = function(grunt) {
       });
 
       // create a cache entry, so that later we can regen or check freshness
-      var entry = meta_manager.create(deps)
-      var deps = [];
+      var entry = meta_manager.create([])
       // add grunt file to dependencies so that file are rebuild when this file changes
       for( var ooo in this.files ){
         for( var ttt in this.files[ooo].src ){
           entry.append_dependency(this.files[ooo].src[ttt])
         }
       }
-      entry.append_dependency(process.cwd()+"/Gruntfile.js")
-      entry.append_dependency( user_config.project_dir+"/../config.json")
       entry.append_dependency(__filename)
 
 
