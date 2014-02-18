@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>uglify.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="public/stylesheets/normalize.css" />
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="page">
+
+      <div class="header">
+        
+          <h1>uglify.js</h1>
+        
+
+        
+          <div class="toc">
+            <h3>Table of Contents</h3>
+            <ol>
+              
+                
+                <li>
+                  <a class="source" href="uglify.html">
+                    uglify.js
+                  </a>
+                </li>
+              
+                
+                <li>
+                  <a class="source" href="build.html">
+                    build.js
+                  </a>
+                </li>
+              
+            </ol>
+          </div>
+        
+      </div>
+
+      
+        
+        
+        
+          <div class='highlight'><pre>
+<span class="hljs-comment">/*
+ * From 
+ * grunt-contrib-uglify
+ * https://gruntjs.com/
+ * 
+ * 
+ *
+ * Copyright (c) 2012 "Cowboy" Ben Alman, contributors
+ * Licensed under the MIT license.
+ */</span>
+<span class="hljs-pi">
+'use strict'</span>;</pre></div>
+        
+      
+        
+        <p>External libs.</p>
+
+        
+          <div class='highlight'><pre><span class="hljs-keyword">var</span> UglifyJS = <span class="hljs-built_in">require</span>(<span class="hljs-string">'uglify-js'</span>);
+<span class="hljs-keyword">var</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'fs'</span>);
+
+exports.init = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(grunt)</span> {</span>
+  <span class="hljs-keyword">var</span> exports = {};</pre></div>
+        
+      
+        
+        <p>Minify with UglifyJS.
+From <a href="https://github.com/mishoo/UglifyJS2">https://github.com/mishoo/UglifyJS2</a>
+API docs at <a href="http://lisperator.net/uglifyjs/">http://lisperator.net/uglifyjs/</a></p>
+
+        
+          <div class='highlight'><pre>  exports.minify = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(files, dest, options)</span> {</span>
+    options = options || {};
+
+    grunt.verbose.write(<span class="hljs-string">'Minifying with UglifyJS...'</span>);
+
+    <span class="hljs-keyword">var</span> topLevel = <span class="hljs-literal">null</span>;
+    <span class="hljs-keyword">var</span> totalCode = <span class="hljs-string">''</span>;
+
+    <span class="hljs-keyword">var</span> outputOptions = getOutputOptions(options, dest);
+    <span class="hljs-keyword">var</span> output = UglifyJS.OutputStream(outputOptions);</pre></div>
+        
+      
+        
+        <p>Grab and parse all source files</p>
+
+        
+          <div class='highlight'><pre>    files.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(file)</span>{</span>
+      <span class="hljs-keyword">var</span> code = grunt.file.read(file);
+      <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> options.sourceMapPrefix !== <span class="hljs-string">'undefined'</span>) {
+        file = file.replace(<span class="hljs-regexp">/^\/+/</span>, <span class="hljs-string">""</span>).split(<span class="hljs-regexp">/\/+/</span>).slice(options.sourceMapPrefix).join(<span class="hljs-string">"/"</span>);
+      }
+      totalCode += code;
+      topLevel = UglifyJS.parse(code, {
+        filename: file,
+        toplevel: topLevel
+      });
+    });</pre></div>
+        
+      
+        
+        <p>Wrap code in a common js wrapper.</p>
+
+        
+          <div class='highlight'><pre>    <span class="hljs-keyword">if</span> (options.wrap) {
+      topLevel = topLevel.wrap_commonjs(options.wrap, options.exportAll);
+    }</pre></div>
+        
+      
+        
+        <p>Need to call this before we mangle or compress,
+and call after any compression or ast altering</p>
+
+        
+          <div class='highlight'><pre>    topLevel.figure_out_scope();
+
+    <span class="hljs-keyword">if</span> (options.compress !== <span class="hljs-literal">false</span>) {
+      <span class="hljs-keyword">if</span> (options.compress.warnings !== <span class="hljs-literal">true</span>) {
+        options.compress.warnings = <span class="hljs-literal">false</span>;
+      }
+      <span class="hljs-keyword">var</span> compressor = UglifyJS.Compressor(options.compress);
+      topLevel = topLevel.transform(compressor);</pre></div>
+        
+      
+        
+        <p>Need to figure out scope again after source being altered</p>
+
+        
+          <div class='highlight'><pre>      topLevel.figure_out_scope();
+    }
+
+    <span class="hljs-keyword">if</span> (options.mangle !== <span class="hljs-literal">false</span>) {</pre></div>
+        
+      
+        
+        <p>compute_char_frequency optimizes names for compression</p>
+
+        
+          <div class='highlight'><pre>      topLevel.compute_char_frequency(options.mangle);</pre></div>
+        
+      
+        
+        <p>Requires previous call to figure_out_scope
+and should always be called after compressor transform</p>
+
+        
+          <div class='highlight'><pre>      topLevel.mangle_names(options.mangle);
+    }</pre></div>
+        
+      
+        
+        <p>Print the ast to OutputStream</p>
+
+        
+          <div class='highlight'><pre>    topLevel.print(output);
+
+    <span class="hljs-keyword">var</span> min = output.get();
+
+    <span class="hljs-keyword">if</span> (options.sourceMappingURL || options.sourceMap) {
+      min += <span class="hljs-string">"\n/*\n//@ sourceMappingURL="</span> + (options.sourceMappingURL || options.sourceMap) + <span class="hljs-string">"\n*/"</span>;
+    }
+
+    <span class="hljs-keyword">var</span> result = {
+      max: totalCode,
+      min: min,
+      sourceMap: outputOptions.source_map
+    };
+
+    grunt.verbose.ok();
+
+    <span class="hljs-keyword">return</span> result;
+  };
+
+  <span class="hljs-keyword">var</span> getOutputOptions = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(options, dest)</span> {</span>
+    <span class="hljs-keyword">var</span> outputOptions = {
+      beautify: <span class="hljs-literal">false</span>,
+      source_map: <span class="hljs-literal">null</span>
+    };
+
+    <span class="hljs-keyword">if</span> (options.preserveComments) {
+      <span class="hljs-keyword">if</span> (options.preserveComments === <span class="hljs-string">'all'</span> || options.preserveComments === <span class="hljs-literal">true</span>) {</pre></div>
+        
+      
+        
+        <p>preserve all the comments we can</p>
+
+        
+          <div class='highlight'><pre>        outputOptions.comments = <span class="hljs-literal">true</span>;
+      } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (options.preserveComments === <span class="hljs-string">'some'</span>) {</pre></div>
+        
+      
+        
+        <p>preserve comments with directives or that start with a bang (!)</p>
+
+        
+          <div class='highlight'><pre>        outputOptions.comments = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(node, comment)</span> {</span>
+          <span class="hljs-keyword">return</span> (<span class="hljs-regexp">/^!|@preserve|@license|@cc_on/i</span>).test(comment.value);
+        };
+      } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (grunt.util._.isFunction(options.preserveComments)) {</pre></div>
+        
+      
+        
+        <p>support custom functions passed in</p>
+
+        
+          <div class='highlight'><pre>        outputOptions.comments = options.preserveComments;
+      }
+    }
+
+    <span class="hljs-keyword">if</span> (options.beautify) {
+      <span class="hljs-keyword">if</span> (grunt.util._.isObject(options.beautify)) {</pre></div>
+        
+      
+        
+        <p>beautify options sent as an object are merged
+with outputOptions and passed to the OutputStream</p>
+
+        
+          <div class='highlight'><pre>        grunt.util._.extend(outputOptions, options.beautify);
+      } <span class="hljs-keyword">else</span> {
+        outputOptions.beautify = <span class="hljs-literal">true</span>;
+      }
+    }
+
+
+    <span class="hljs-keyword">if</span> (options.sourceMap) {
+      <span class="hljs-keyword">var</span> sourceMapIn;
+      <span class="hljs-keyword">if</span> (options.sourceMapIn) {
+        sourceMapIn = grunt.file.readJSON(options.sourceMapIn);
+      }
+      outputOptions.source_map = UglifyJS.SourceMap({
+        file: dest,
+        root: options.sourceMapRoot,
+        orig: sourceMapIn
+      });
+    }
+
+    <span class="hljs-keyword">return</span> outputOptions;
+  };
+
+  <span class="hljs-keyword">return</span> exports;
+};</pre></div>
+        
+      
+      <div class="fleur">h</div>
+    </div>
+  </div>
+</body>
+</html>
